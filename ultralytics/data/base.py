@@ -10,6 +10,7 @@ from copy import deepcopy
 from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from typing import Any
+import ultralytics.data.mep as mep
 
 import cv2
 import numpy as np
@@ -232,7 +233,8 @@ class BaseDataset(Dataset):
                     Path(fn).unlink(missing_ok=True)
                     im = imread(f, flags=self.cv2_flag)  # BGR
             else:  # read image
-                im = imread(f, flags=self.cv2_flag)  # BGR
+                im = mep.CVRead(f, flags=self.cv2_flag)
+                # im = imread(f, flags=self.cv2_flag)  # BGR
             if im is None:
                 raise FileNotFoundError(f"Image Not Found {f}")
 
