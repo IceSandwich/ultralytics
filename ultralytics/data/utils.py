@@ -12,6 +12,7 @@ from multiprocessing.pool import ThreadPool
 from pathlib import Path
 from tarfile import is_tarfile
 from typing import Any
+from ultralytics.data import mep
 
 import cv2
 import numpy as np
@@ -158,7 +159,8 @@ def verify_image(args: tuple) -> tuple:
     # Number (found, corrupt), message
     nf, nc, msg = 0, 0, ""
     try:
-        im = Image.open(im_file)
+        im = mep.PILRead(im_file)
+        # im = Image.open(im_file)
         im.verify()  # PIL verify
         shape = exif_size(im)  # image size
         shape = (shape[1], shape[0])  # hw
@@ -184,7 +186,8 @@ def verify_image_label(args: tuple) -> list:
     nm, nf, ne, nc, msg, segments, keypoints = 0, 0, 0, 0, "", [], None
     try:
         # Verify images
-        im = Image.open(im_file)
+        im = mep.PILRead(im_file)
+        # im = Image.open(im_file)
         im.verify()  # PIL verify
         shape = exif_size(im)  # image size
         shape = (shape[1], shape[0])  # hw
