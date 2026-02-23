@@ -23,13 +23,24 @@ class XorCipher:
 
 FileSuffix = ".mep"
 MetadataFilename = "md" + FileSuffix
+MepEnviron = "MEP_KEY"
 
 cipher: typing.Optional[XorCipher] = None
 
 def SetKey(mep_key: str):
 	global cipher
 	cipher = XorCipher(mep_key)
+	os.environ[MepEnviron] = mep_key
 	print("【】】】】 Using cipher.")
+
+def IsCiperNone():
+	global cipher
+	if cipher is not None:
+		return False
+	env = os.getenv(MepEnviron)
+	if env is None: return True
+	cipher = XorCipher(env)
+	return False
 
 def decode(filename: str):
 	with open(filename, 'rb') as f:
@@ -53,7 +64,7 @@ def encode(filename_or_data: typing.Union[str, bytes]):
 	return cipher.Encrypt(data)
 
 def PILRead(filename: str):
-	if cipher is None or not filename.endswith(FileSuffix):
+	if IsCiperNone() or not filename.endswith(FileSuffix):
 		if filename.endswith(FileSuffix):
 			print(f"MEP] Read {filename} but cipher is None.")
 		return Image.open(filename)
@@ -62,7 +73,7 @@ def PILRead(filename: str):
 		return Image.open(buf)
 
 def CVRead(filename: str, flags: int = cv2.IMREAD_COLOR):
-	if cipher is None or not filename.endswith(FileSuffix):
+	if IsCiperNone() or not filename.endswith(FileSuffix):
 		if filename.endswith(FileSuffix):
 			print(f"MEP] Read {filename} but cipher is None.")
 		return cv2.imread(filename, flags)
