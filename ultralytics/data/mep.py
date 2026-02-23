@@ -54,6 +54,8 @@ def encode(filename_or_data: typing.Union[str, bytes]):
 
 def PILRead(filename: str):
 	if cipher is None or not filename.endswith(FileSuffix):
+		if filename.endswith(FileSuffix):
+			print(f"MEP] Read {filename} but cipher is None.")
 		return Image.open(filename)
 	else:
 		buf = decode(filename)
@@ -61,6 +63,8 @@ def PILRead(filename: str):
 
 def CVRead(filename: str, flags: int = cv2.IMREAD_COLOR):
 	if cipher is None or not filename.endswith(FileSuffix):
+		if filename.endswith(FileSuffix):
+			print(f"MEP] Read {filename} but cipher is None.")
 		return cv2.imread(filename, flags)
 	else:
 		img = PILRead(filename)
