@@ -5,6 +5,7 @@ import numpy as np
 import typing
 import argparse
 import os
+import threading
 
 class XorCipher:
 	def __init__(self, key: str):
@@ -24,6 +25,7 @@ class XorCipher:
 FileSuffix = ".mep"
 MetadataFilename = "md" + FileSuffix
 MepEnviron = "MEP_KEY"
+lock = threading.Lock()
 
 cipher: typing.Optional[XorCipher] = None
 
@@ -39,7 +41,12 @@ def IsCiperNone():
 		return False
 	env = os.getenv(MepEnviron)
 	if env is None: return True
-	cipher = XorCipher(env)
+	lock.acquire()
+	try:
+		if cipher is not None:
+			cipher = XorCipher(env)
+	finally:
+		lock.release()
 	return False
 
 def decode(filename: str):
@@ -66,7 +73,7 @@ def encode(filename_or_data: typing.Union[str, bytes]):
 def PILRead(filename: str):
 	if IsCiperNone() or not filename.endswith(FileSuffix):
 		if filename.endswith(FileSuffix):
-			print(f"MEP] Read {filename} but cipher is None.")
+			raise Exception(f"MEP] Read {filename} but cipher is None.")
 		return Image.open(filename)
 	else:
 		buf = decode(filename)
@@ -75,7 +82,7 @@ def PILRead(filename: str):
 def CVRead(filename: str, flags: int = cv2.IMREAD_COLOR):
 	if IsCiperNone() or not filename.endswith(FileSuffix):
 		if filename.endswith(FileSuffix):
-			print(f"MEP] Read {filename} but cipher is None.")
+			raise Exception(f"MEP] Read {filename} but cipher is None.")
 		return cv2.imread(filename, flags)
 	else:
 		img = PILRead(filename)
